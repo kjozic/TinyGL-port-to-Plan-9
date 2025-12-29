@@ -1,0 +1,5 @@
+Reset to known state:
+    aux/vga -m vga -l
+
+Change resolution:
+    aux/vga -m vesa -l 1280x1024x16

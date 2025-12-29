@@ -11,6 +11,9 @@ endif
 ifdef TINYGL_USE_NANOX
 OBJS += nglx.o
 endif
+ifdef TINYGL_USE_PLAN9
+OBJS += plan9.o
+endif
 
 INCLUDES = -I../include
 LIB = libTinyGL.a
@@ -37,6 +40,7 @@ arrays.c: zgl.h zfeatures.h
 specbuf.o: zgl.h zfeatures.h
 glx.o: zgl.h zfeatures.h
 nglx.o: zgl.h zfeatures.h
+plan9.o: zgl.h zfeatures.h
 zline.o: zgl.h zfeatures.h zline.h
 
 ztriangle.o: ztriangle.c ztriangle.h zgl.h zfeatures.h

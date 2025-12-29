@@ -2,7 +2,7 @@
 # C compiler
 
 # linux
-CC= gcc
+CC= 8c
 CFLAGS= -g -Wall -O2
 LFLAGS=
 
@@ -18,13 +18,16 @@ LFLAGS=
 # Select window API for TinyGL: 
 
 # standard X11 GLX like API 
-TINYGL_USE_GLX=y
+#TINYGL_USE_GLX=y
 
 # BEOS API
 #TINYGL_USE_BEOS=y
 
 # Micro Windows NanoX API
 #TINYGL_USE_NANOX=y
+
+# Plan 9 API
+TINYGL_USE_PLAN9=y
 
 #####################################################################
 # X11 configuration (for the examples only)
@@ -51,6 +54,15 @@ UI_INCLUDES=
 UI_LIBS+= -L/usr/X11R6/lib -lX11 -lXext
 
 UI_OBJS=nanox.o
+endif
+
+#####################################################################
+# Plan 9 configuration (for the examples only)
+
+ifdef TINYGL_USE_PLAN9
+CFLAGS= -D_PLAN9_EXTENSION
+
+UI_OBJS=plan9.o
 endif
 
 #####################################################################
