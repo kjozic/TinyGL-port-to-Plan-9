@@ -1,9 +1,9 @@
 /*
  * tk like ui
  */
-void draw( void );
+void draw_scene( void );
 void idle( void );
-GLenum key(int k, GLenum mask);
+int key(int k, int mask);
 void reshape( int width, int height );
 void init( void );
 int ui_loop(int argc, char **argv, const char *name);

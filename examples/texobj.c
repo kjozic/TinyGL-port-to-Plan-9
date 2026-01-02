@@ -20,7 +20,7 @@ static GLfloat Angle = 0.0f;
 static int cnt=0,v=0;
 
 void 
-draw(void)
+draw_scene(void)
 {
   glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 
@@ -171,7 +171,7 @@ idle(void)
     cnt=0;
     v=!v;
   }
-  draw();
+  draw_scene();
 }
 
 /* change view angle, exit upon ESC */

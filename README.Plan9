@@ -1,3 +1,7 @@
+If using plan9port under Linux, presumed path is ~/plan9port.
+Just run make command.
+
+
 Reset to known state:
     aux/vga -m vga -l
 

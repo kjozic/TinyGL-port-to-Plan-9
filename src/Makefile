@@ -11,12 +11,15 @@ endif
 ifdef TINYGL_USE_NANOX
 OBJS += nglx.o
 endif
-ifdef TINYGL_USE_PLAN9
-OBJS += plan9.o
-endif
 
 INCLUDES = -I../include
 LIB = libTinyGL.a
+
+ifdef TINYGL_USE_PLAN9
+OBJS += plan9.o
+INCLUDES += -I${HOME}/plan9port/include
+LIBS= -L/${HOME}/plan9port/lib -ldraw
+endif
 
 all: $(LIB)
 
@@ -29,7 +32,7 @@ clean:
 	rm -f *~ *.o *.a
 
 .c.o:
-	$(CC) $(CFLAGS) $(INCLUDES) -c $*.c
+	$(CC) $(CFLAGS) $(INCLUDES) $(LIBS) -c $*.c
 
 clip.o: zgl.h zfeatures.h
 vertex.o: zgl.h zfeatures.h

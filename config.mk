@@ -2,7 +2,7 @@
 # C compiler
 
 # linux
-CC= 8c
+CC= gcc
 CFLAGS= -g -Wall -O2
 LFLAGS=
 
@@ -60,9 +60,11 @@ endif
 # Plan 9 configuration (for the examples only)
 
 ifdef TINYGL_USE_PLAN9
-CFLAGS= -D_PLAN9_EXTENSION
 
+UI_LIBS= -L${HOME}/plan9port/lib -ldraw -l9 -lmux
+UI_INCLUDES= -I${HOME}/plan9port/include
 UI_OBJS=plan9.o
+
 endif
 
 #####################################################################

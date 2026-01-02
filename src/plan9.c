@@ -1,45 +1,42 @@
-/* simple glx like driver for TinyGL and Nano X */
-#include <GL/gl.h>
+/* simple glx like driver for TinyGL and Plan 9 */
+
+#include <u.h>
+#include <libc.h>
+#include <draw.h>
 #include <GL/plan9.h>
 #include "zgl.h"
 
-void *plan9CreateContext(char *label)
+Plan9Context *plan9CreateContext(char *label)
 {
-  Plan9Context *ctx;
-
-  ctx = gl_malloc(sizeof(Plan9Context));
+  Plan9Context *ctx = gl_malloc(sizeof(Plan9Context));
 
   if (!ctx)
     return NULL;
 
-  ctx->gl_context = NULL;
-
-  if (initdraw(nil, nil, label) < 0)
+  if (initdraw(nil, "*default*", label) < 0)
   {
     free(ctx);
 
     return NULL;
   }
 
-  if (screen->depth != 16)
-  {
-    free(ctx);
-
-    return NULL;
-  }
-
-  return (void *)ctx;
+  return ctx;
 }
 
-void plan9DestroyContext(Plan9Context *ctx)
+void plan9DestroyContext()
 {
-  if (ctx->gl_context != NULL)
+  GLContext *gl_context;
+  Plan9Context *ctx;
+
+  gl_context = gl_get_context();
+  ctx = (Plan9Context *)gl_context->opaque;
+
+  if (ctx != NULL)
   {
-    glClose();
+    free(ctx);
   }
 
-  free(ctx);
-
+  glClose();
   closedisplay(display);
 }
 
@@ -73,17 +70,16 @@ static int plan9_resize_viewport(GLContext *c, int *xsize_ptr, int *ysize_ptr)
 
 int plan9MakeCurrent(Plan9Context *ctx)
 {
-  int mode, xsize, ysize;
+  GLContext *gl_context;
   ZBuffer *zb;
+  int xsize, ysize;
 
-  if (ctx->gl_context == NULL)
+  if (ctx != NULL)
   {
-    xsize = screen->max.x - screen->min.x;
-    ysize = screen->max.y - screen->min.y;
+    xsize = screen->r.max.x - screen->r.min.x;
+    ysize = screen->r.max.y - screen->r.min.y;
 
-    /* currently, we only support 16 bit rendering */
-    mode = ZB_MODE_5R6G5B;
-    zb = ZB_open(xsize, ysize, mode, 0, NULL, NULL, NULL);
+    zb = ZB_open(xsize, ysize, ZB_MODE_5R6G5B, 0, NULL, NULL, NULL);
 
     if (zb == NULL)
     {
@@ -91,17 +87,15 @@ int plan9MakeCurrent(Plan9Context *ctx)
       exit(1);
     }
 
-    ctx->pixtype = MWPF_TRUECOLOR565;
-
     glInit(zb);
 
-    ctx->gl_context = gl_get_context();
-    ctx->gl_context->opaque = (void *)ctx;
-    ctx->gl_context->gl_resize_viewport = plan9_resize_viewport;
+    gl_context = gl_get_context();
+    gl_context->opaque = ctx;
+    gl_context->gl_resize_viewport = plan9_resize_viewport;
 
     /* set the viewport : we force a call to glX_resize_viewport */
-    ctx->gl_context->viewport.xsize = -1;
-    ctx->gl_context->viewport.ysize = -1;
+    gl_context->viewport.xsize = -1;
+    gl_context->viewport.ysize = -1;
 
     glViewport(0, 0, xsize, ysize);
   }
@@ -112,23 +106,12 @@ int plan9MakeCurrent(Plan9Context *ctx)
 void plan9SwapBuffers()
 {
   GLContext *gl_context;
+  Plan9Context *ctx;
+  Image *img;
 
   gl_context = gl_get_context();
   ctx = (Plan9Context *)gl_context->opaque;
-
-  Image *img;
-  Rectangle rec;
-
-  rec = Rect(0, 0, ctx->xsize, ctx->ysize);
-
-  /*
-  rec.min.x = 0;
-  rec.min.y = 0;
-  rec.max.x = ctx->xsize;
-  rec.max.y = ctx->ysize;
-  */
-
-  img = allocimage(display, rec, RGB16, 0, DNofill);
+  img = allocimage(display, Rect(0, 0, ctx->xsize, ctx->ysize), RGB16, 0, DNofill);
 
   if (!img)
   {
@@ -137,7 +120,8 @@ void plan9SwapBuffers()
     return;
   }
 
-  loadimage(img, rec, (uchar *)ctx->gl_context->zb->pbuf, ctx->xsize * ctx->ysize * 2);
-  draw(screen, rec, img, nil, ZP);
+  loadimage(img, Rect(0, 0, ctx->xsize, ctx->ysize), (void *)gl_context->zb->pbuf, ctx->xsize * ctx->ysize * 2);
+  draw(screen, Rect(0, 0, ctx->xsize, ctx->ysize), img, nil, ZP);
+  flushimage(display, 1);
   freeimage(img);
 }

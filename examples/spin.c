@@ -92,7 +92,7 @@ GLenum key(int k, GLenum mask)
 }
 
 
-void draw( void )
+void draw_scene( void )
 {
    glClear( GL_COLOR_BUFFER_BIT );
 
@@ -137,7 +137,7 @@ void idle( void )
       Zrot = Zstep = 0.0;
       Xstep = Step;
    }
-   draw();
+   draw_scene();
 }
 
 void init(void)
